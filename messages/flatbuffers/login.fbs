@@ -1,0 +1,7 @@
+table Login {
+    name :string;
+    objectType : uint8;
+    hostname :string;
+    timeout :int64;
+    password :string;
+}

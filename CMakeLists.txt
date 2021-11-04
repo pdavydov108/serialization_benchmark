@@ -19,12 +19,27 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 conan_cmake_autodetect(settings)
 
 conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
+    CMAKE_TARGETS
     BUILD missing
     REMOTE conancenter
     SETTINGS ${settings})
 
 find_package(CapnProto)
 find_package(Flatbuffers)
+find_package(flatc)
+find_program(FLATC flatc)
+message(${FLATC})
 
-add_executable(main main.cpp)
-target_link_libraries(main)
+capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS messages/capnproto/login.capnp)
+
+set(FLATBUFFERS_FLATC_EXECUTABLE ${FLATC})
+build_flatbuffers("messages/flatbuffers/login.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
+
+add_executable(main_capnp main_capnp.cpp ${CAPNP_SRCS})
+target_link_libraries(main_capnp)
+target_include_directories(main_capnp PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CAPNP_INCLUDE_DIRECTORY} CONAN_PKG::benchmark)
+
+add_executable(main_flat main_flat.cpp ${FLATBUFFERS_SRCS})
+target_link_libraries(main_flat)
+target_include_directories(main_flat PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${FLATBUFFERS_GENERATE_HEADERS} CONAN_PKG::benchmark CONAN_PKG::flatc)
+add_dependencies(main_flat buffers_flat)
