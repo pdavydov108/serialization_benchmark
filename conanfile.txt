@@ -1,0 +1,6 @@
+[requires]
+capnproto/0.9.1
+flatbuffers/2.0.0
+
+[generators]
+cmake_find_package
