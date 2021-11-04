@@ -27,17 +27,18 @@ conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
 find_package(CapnProto)
 find_package(Flatbuffers)
 find_package(flatc)
+find_package(benchmark)
 find_program(FLATC flatc)
-message(${FLATC})
 
-capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS messages/capnproto/login.capnp)
+capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS "messages/capnproto/login.capnp;messages/capnproto/transaction.capnp")
 
 set(FLATBUFFERS_FLATC_EXECUTABLE ${FLATC})
 build_flatbuffers("messages/flatbuffers/login.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
 
 add_executable(main_capnp main_capnp.cpp ${CAPNP_SRCS})
-target_link_libraries(main_capnp)
-target_include_directories(main_capnp PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CAPNP_INCLUDE_DIRECTORY} CONAN_PKG::benchmark)
+target_link_libraries(main_capnp ${benchmark_LIBS} ${CapnProto_LIBS})
+message(${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(main_capnp PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CAPNP_INCLUDE_DIRECTORY} ${benchmark_INCLUDE_DIRS})
 
 add_executable(main_flat main_flat.cpp ${FLATBUFFERS_SRCS})
 target_link_libraries(main_flat)
