@@ -1,0 +1,3 @@
+table Transaction {
+    timeout :uint8;
+}

@@ -16,7 +16,6 @@ static void BM_login(benchmark::State &state) {
         login.setPassword("secret");
         login.setTimeout(1000);
         auto arr = capnp::messageToFlatArray(message);
-        std::cout << arr.size() << std::endl;
     }
 }
 BENCHMARK(BM_login);

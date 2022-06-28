@@ -1,0 +1,12 @@
+id: 4
+fields:
+  - name: object_name
+    type: string
+  - name: object_type
+    type: uint8
+  - name: hostname
+    type: string
+  - name: timeout
+    type: int64
+  - name: password
+    type: string

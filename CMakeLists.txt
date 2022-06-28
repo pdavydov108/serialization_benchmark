@@ -26,14 +26,12 @@ conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}
 
 find_package(CapnProto)
 find_package(Flatbuffers)
-find_package(flatc)
 find_package(benchmark)
-find_program(FLATC flatc)
 
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS "messages/capnproto/login.capnp;messages/capnproto/transaction.capnp")
 
 set(FLATBUFFERS_FLATC_EXECUTABLE ${FLATC})
-build_flatbuffers("messages/flatbuffers/login.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
+build_flatbuffers("messages/flatbuffers/login.fbs;messages/flatbuffers/transaction.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
 
 add_executable(main_capnp main_capnp.cpp ${CAPNP_SRCS})
 target_link_libraries(main_capnp ${benchmark_LIBS} ${CapnProto_LIBS})
@@ -41,6 +39,20 @@ message(${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(main_capnp PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CAPNP_INCLUDE_DIRECTORY} ${benchmark_INCLUDE_DIRS})
 
 add_executable(main_flat main_flat.cpp ${FLATBUFFERS_SRCS})
-target_link_libraries(main_flat)
-target_include_directories(main_flat PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${FLATBUFFERS_GENERATE_HEADERS} CONAN_PKG::benchmark CONAN_PKG::flatc)
+target_link_libraries(main_flat ${benchmark_LIBS} flatbuffers::flatbuffers)
+target_include_directories(main_flat PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${FLATBUFFERS_GENERATE_HEADERS} ${flatbuffers_INCLUDE_DIRS} CONAN_PKG::benchmark ${benchmark_INCLUDE_DIRS})
 add_dependencies(main_flat buffers_flat)
+
+FILE(GLOB CMAKE_CUSTOM_FUNCTION_FILES messgen/integrations/cmake/*.cmake)
+FOREACH (CUSTOM_FUNCTION_FILE ${CMAKE_CUSTOM_FUNCTION_FILES})
+    INCLUDE(${CUSTOM_FUNCTION_FILE})
+ENDFOREACH ()
+SET(MESSGEN_DIR ${CMAKE_SOURCE_DIR}/messgen)
+
+MESSGEN_GENERATE_MESSAGES(${CMAKE_SOURCE_DIR} messages/messgen/ ${CMAKE_BINARY_DIR})
+message(${MESSGEN_DIR}/port/cpp)
+
+add_executable(main_messgen main_messgen.cpp ${MESSGEN_OUT_FILES})
+target_link_libraries(main_messgen ${benchmark_LIBS})
+target_include_directories(main_messgen PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${benchmark_INCLUDE_DIRS} ${MESSGEN_DIR}/port/cpp)
+

@@ -1,0 +1,3 @@
+[submodule "messgen"]
+	path = messgen
+	url = https://github.com/microavia/messgen
