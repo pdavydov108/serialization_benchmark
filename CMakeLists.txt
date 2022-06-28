@@ -33,8 +33,8 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS "messages/capnproto/login.capnp;message
 set(FLATBUFFERS_FLATC_EXECUTABLE ${FLATC})
 build_flatbuffers("messages/flatbuffers/login.fbs;messages/flatbuffers/transaction.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
 
-add_executable(main_capnp main_capnp.cpp ${CAPNP_SRCS})
-target_link_libraries(main_capnp capnproto::capnproto benchmark::benchmark)
+add_executable(main_capnp main_capnp.cpp)
+target_link_libraries(main_capnp benchmark::benchmark capnproto::capnproto)
 
 add_executable(main_flat main_flat.cpp ${FLATBUFFERS_SRCS})
 target_link_libraries(main_flat flatbuffers::flatbuffers benchmark::benchmark)

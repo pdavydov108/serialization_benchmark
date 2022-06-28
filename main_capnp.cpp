@@ -6,7 +6,7 @@
 #include <capnp/serialize-packed.h>
 #include <capnp/serialize.h>
 
-static void BM_login(benchmark::State &state) {
+static void BM_login_cpnp(benchmark::State &state) {
     while (state.KeepRunning()) {
         capnp::MallocMessageBuilder message;
         auto login = message.initRoot<Login>();
@@ -18,9 +18,9 @@ static void BM_login(benchmark::State &state) {
         auto arr = capnp::messageToFlatArray(message);
     }
 }
-BENCHMARK(BM_login);
+BENCHMARK(BM_login_cpnp);
 
-static void BM_transaction(benchmark::State &state) {
+static void BM_transaction_cpnp(benchmark::State &state) {
     while (state.KeepRunning()) {
         capnp::MallocMessageBuilder message;
         auto login = message.initRoot<Transaction>();
@@ -28,4 +28,4 @@ static void BM_transaction(benchmark::State &state) {
         auto arr = capnp::messageToFlatArray(message);
     }
 }
-BENCHMARK(BM_transaction);
+BENCHMARK(BM_transaction_cpnp);

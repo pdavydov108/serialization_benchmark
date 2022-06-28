@@ -2,8 +2,9 @@
 #include <messgen/Metadata.h>
 #include <messages/msgs/protocol/test/messages.h>
 #include <vector>
+#include <random>
 
-static void BM_login(benchmark::State &state) {
+static void BM_login_messg(benchmark::State &state) {
     std::vector<char> buffer(1024, 0);
     while (state.KeepRunning()) {
         messages::msgs::protocol::test::login_flat lf;
@@ -15,9 +16,9 @@ static void BM_login(benchmark::State &state) {
         benchmark::DoNotOptimize(lf.serialize_msg(reinterpret_cast<uint8_t*>(buffer.data())));
     }
 }
-BENCHMARK(BM_login);
+BENCHMARK(BM_login_messg);
 
-static void BM_login_parse(benchmark::State &state) {
+static void BM_login_parse_messg(benchmark::State &state) {
     std::vector<char> buffer(1024, 0);
     std::vector<char> mem(1024, 0);
     std::string name;
@@ -34,9 +35,9 @@ static void BM_login_parse(benchmark::State &state) {
         other.parse_msg(reinterpret_cast<uint8_t*>(buffer.data()), size, alloc);
     }
 }
-BENCHMARK(BM_login_parse);
+BENCHMARK(BM_login_parse_messg);
 
-static void BM_transaction(benchmark::State &state) {
+static void BM_transaction_messg(benchmark::State &state) {
     std::vector<char> buffer(1024, 0);
     while (state.KeepRunning()) {
         messages::msgs::protocol::test::transaction tr;
@@ -44,4 +45,25 @@ static void BM_transaction(benchmark::State &state) {
         benchmark::DoNotOptimize(tr.serialize_msg(reinterpret_cast<uint8_t*>(buffer.data())));
     }
 }
-BENCHMARK(BM_transaction);
+BENCHMARK(BM_transaction_messg);
+
+static void BM_login_random_messg(benchmark::State &state) {
+    std::random_device seed;
+    std::mt19937 gen(seed());
+    std::vector<std::string> random_strings;
+    std::generate_n(std::back_inserter(random_strings), 1024, [&] { return std::to_string(gen()); });
+
+    std::vector<char> buffer(1024, 0);
+    long i = 0;
+    while (state.KeepRunning()) {
+        messages::msgs::protocol::test::login_flat lf;
+        lf.hostname = random_strings[++i % 1024];
+        lf.object_name = random_strings[++i % 1024];
+        lf.object_type = 1;
+        lf.timeout = 1024;
+        lf.password = random_strings[++i % 1024];
+        benchmark::DoNotOptimize(lf.serialize_msg(reinterpret_cast<uint8_t*>(buffer.data())));
+    }
+}
+BENCHMARK(BM_login_random_messg);
+
