@@ -34,13 +34,10 @@ set(FLATBUFFERS_FLATC_EXECUTABLE ${FLATC})
 build_flatbuffers("messages/flatbuffers/login.fbs;messages/flatbuffers/transaction.fbs" "" "buffers_flat" "" ${CMAKE_CURRENT_BINARY_DIR} "" "")
 
 add_executable(main_capnp main_capnp.cpp ${CAPNP_SRCS})
-target_link_libraries(main_capnp ${benchmark_LIBS} ${CapnProto_LIBS})
-message(${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(main_capnp PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CAPNP_INCLUDE_DIRECTORY} ${benchmark_INCLUDE_DIRS})
+target_link_libraries(main_capnp capnproto::capnproto benchmark::benchmark)
 
 add_executable(main_flat main_flat.cpp ${FLATBUFFERS_SRCS})
-target_link_libraries(main_flat ${benchmark_LIBS} flatbuffers::flatbuffers)
-target_include_directories(main_flat PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${FLATBUFFERS_GENERATE_HEADERS} ${flatbuffers_INCLUDE_DIRS} CONAN_PKG::benchmark ${benchmark_INCLUDE_DIRS})
+target_link_libraries(main_flat flatbuffers::flatbuffers benchmark::benchmark)
 add_dependencies(main_flat buffers_flat)
 
 FILE(GLOB CMAKE_CUSTOM_FUNCTION_FILES messgen/integrations/cmake/*.cmake)
@@ -53,6 +50,6 @@ MESSGEN_GENERATE_MESSAGES(${CMAKE_SOURCE_DIR} messages/protocol/test ${CMAKE_BIN
 message(${MESSGEN_DIR}/port/cpp)
 
 add_executable(main_messgen main_messgen.cpp ${MESSGEN_OUT_FILES})
-target_link_libraries(main_messgen ${benchmark_LIBS})
-target_include_directories(main_messgen PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${benchmark_INCLUDE_DIRS} ${MESSGEN_DIR}/port/cpp)
+target_link_libraries(main_messgen benchmark::benchmark)
+target_include_directories(main_messgen PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${MESSGEN_DIR}/port/cpp)
 
